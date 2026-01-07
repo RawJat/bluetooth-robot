@@ -39,8 +39,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            /* Distribute space evenly */
+            /* justify-content: space-between; REMOVED to fix gaps */
             overflow: hidden;
 
             /* Safe Area Support */
@@ -48,6 +47,20 @@
             padding-bottom: max(30px, env(safe-area-inset-bottom));
             padding-left: 20px;
             padding-right: 20px;
+        }
+
+        /* NEW CONTAINER FOR SPLIT SCREEN UI */
+        .drive-controls {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            /* Centers controls in the available space */
+            gap: 4vh;
+            /* Consistent gap between D-pad and lower controls */
+            width: 100%;
+            padding-bottom: 2vh;
         }
 
         /* HEADER */
@@ -333,59 +346,61 @@
         <div id="status">Status: Disconnected</div>
     </div>
 
-    <div class="dpad-container">
-        <!-- Up -->
-        <div class="dpad-btn" id="btn-f" data-cmd="F">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
-                stroke-linejoin="round">
-                <path d="M18 15l-6-6-6 6" />
-            </svg>
-        </div>
-        <!-- Left -->
-        <div class="dpad-btn" id="btn-l" data-cmd="L">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
-                stroke-linejoin="round">
-                <path d="M15 18l-6-6 6-6" />
-            </svg>
-        </div>
-        <!-- Stop (Center) -->
-        <div class="center-stop" id="btn-s" data-cmd="S">
-            <span></span>
-        </div>
-        <!-- Right -->
-        <div class="dpad-btn" id="btn-r" data-cmd="R">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
-                stroke-linejoin="round">
-                <path d="M9 18l6-6-6-6" />
-            </svg>
-        </div>
-        <!-- Down -->
-        <div class="dpad-btn" id="btn-b" data-cmd="B">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
-                stroke-linejoin="round">
-                <path d="M6 9l6 6 6-6" />
-            </svg>
-        </div>
-    </div>
-
-    <div class="lower-controls">
-
-        <div class="control-row">
-            <span class="label">Lights</span>
-            <div class="toggle-switch" id="headlightBtn"></div>
-        </div>
-
-        <div class="speed-row">
-            <span class="label">Speed</span>
-            <div class="speed-pill">
-                <div class="speed-btn selected" data-cmd="1">1</div>
-                <div class="speed-btn" data-cmd="2">2</div>
-                <div class="speed-btn" data-cmd="3">3</div>
-                <div class="speed-btn" data-cmd="4">4</div>
+    <div class="drive-controls">
+        <div class="dpad-container">
+            <!-- Up -->
+            <div class="dpad-btn" id="btn-f" data-cmd="F">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M18 15l-6-6-6 6" />
+                </svg>
+            </div>
+            <!-- Left -->
+            <div class="dpad-btn" id="btn-l" data-cmd="L">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M15 18l-6-6 6-6" />
+                </svg>
+            </div>
+            <!-- Stop (Center) -->
+            <div class="center-stop" id="btn-s" data-cmd="S">
+                <span></span>
+            </div>
+            <!-- Right -->
+            <div class="dpad-btn" id="btn-r" data-cmd="R">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M9 18l6-6-6-6" />
+                </svg>
+            </div>
+            <!-- Down -->
+            <div class="dpad-btn" id="btn-b" data-cmd="B">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M6 9l6 6 6-6" />
+                </svg>
             </div>
         </div>
 
-        <button id="emergencyBtn">Emergency Stop</button>
+        <div class="lower-controls">
+
+            <div class="control-row">
+                <span class="label">Lights</span>
+                <div class="toggle-switch" id="headlightBtn"></div>
+            </div>
+
+            <div class="speed-row">
+                <span class="label">Speed</span>
+                <div class="speed-pill">
+                    <div class="speed-btn selected" data-cmd="1">1</div>
+                    <div class="speed-btn" data-cmd="2">2</div>
+                    <div class="speed-btn" data-cmd="3">3</div>
+                    <div class="speed-btn" data-cmd="4">4</div>
+                </div>
+            </div>
+
+            <button id="emergencyBtn">Emergency Stop</button>
+        </div>
     </div>
 
     <!-- Hidden Console for Debugging -->

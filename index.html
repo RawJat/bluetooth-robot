@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Robot Controller</title>
@@ -34,25 +35,33 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             height: 100vh;
+            /* Mobile Layout Optimization */
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-            padding: 20px 20px 40px 20px;
             align-items: center;
+            justify-content: space-between;
+            /* Distribute space evenly */
+            overflow: hidden;
+
+            /* Safe Area Support */
+            padding-top: max(20px, env(safe-area-inset-top));
+            padding-bottom: max(30px, env(safe-area-inset-bottom));
+            padding-left: 20px;
+            padding-right: 20px;
         }
 
         /* HEADER */
         header {
             width: 100%;
             text-align: center;
-            margin-top: 10px;
-            margin-bottom: 20px;
+            flex-shrink: 0;
         }
 
         h1 {
-            font-size: 1.8rem;
+            font-size: clamp(1.5rem, 4vh, 2rem);
+            /* Responsive font size */
             font-weight: 700;
-            margin: 0 0 5px 0;
+            margin: 0;
             letter-spacing: -0.5px;
         }
 
@@ -61,22 +70,23 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 30px;
+            gap: 1vh;
             width: 100%;
+            flex-shrink: 0;
+            margin-bottom: 2vh;
         }
 
         #connectBtn {
             background-color: var(--accent-lilac);
             color: var(--text-color);
             border: none;
-            padding: 16px 40px;
+            padding: 14px 0;
             font-size: 1rem;
             font-weight: 600;
             border-radius: 50px;
             cursor: pointer;
             width: 100%;
-            max-width: 300px;
+            max-width: 320px;
             transition: transform 0.1s, opacity 0.2s;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
         }
@@ -91,19 +101,27 @@
             font-weight: 500;
         }
 
-        /* D-PAD CONTAINER */
+        /* DPAD CONTAINER - The main variable element */
         .dpad-container {
             position: relative;
-            width: 280px;
-            height: 280px;
+            /* Responsive Sizing */
+            width: 70vmin;
+            /* Takes up 70% of the smallest viewport dimension */
+            height: 70vmin;
+            max-width: 350px;
+            max-height: 350px;
+            min-width: 250px;
+            min-height: 250px;
+
             background-color: var(--dpad-bg);
             border-radius: 50%;
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             grid-template-rows: repeat(3, 1fr);
-            margin-bottom: auto;
-            /* Push subsequent items down */
+
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            flex-shrink: 0;
+            /* Prevent squishing */
         }
 
         /* D-PAD BUTTONS */
@@ -112,9 +130,15 @@
             justify-content: center;
             align-items: center;
             color: var(--dpad-arrow);
-            font-size: 1.5rem;
-            /* Arrow size */
+            font-size: 2rem;
             cursor: pointer;
+            border-radius: 50%;
+            /* Larger touch target area visual */
+        }
+
+        .dpad-btn svg {
+            width: 40%;
+            height: 40%;
         }
 
         /* Grid Positioning */
@@ -148,7 +172,8 @@
             grid-row: 2;
             background-color: var(--accent-yellow);
             border-radius: 50%;
-            margin: 10px;
+            margin: 15%;
+            /* Responsive margin based on grid cell */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -157,8 +182,8 @@
         }
 
         .center-stop span {
-            width: 16px;
-            height: 16px;
+            width: 30%;
+            height: 30%;
             background-color: var(--text-color);
             border-radius: 2px;
         }
@@ -167,15 +192,15 @@
             transform: scale(0.95);
         }
 
-
         /* LOWER CONTROLS ROW */
         .lower-controls {
             width: 100%;
-            max-width: 320px;
+            max-width: 340px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            margin-bottom: 20px;
+            gap: 2vh;
+            flex-shrink: 0;
+            padding-bottom: 1vh;
         }
 
         /* LIGHTS ROW */
@@ -221,10 +246,8 @@
 
         .toggle-switch.active::after {
             background-color: var(--dpad-bg);
-            /* Dark toggle knob like image */
             transform: translateX(22px);
         }
-
 
         /* SPEED CONTROL PILL */
         .speed-pill {
@@ -233,8 +256,6 @@
             border-radius: 16px;
             padding: 4px;
             width: 100%;
-            /* Or auto with flex-grow */
-            /* gap: 5px; removed gap to look like segmented control */
         }
 
         .speed-row {
@@ -268,11 +289,11 @@
             background-color: var(--accent-red);
             color: white;
             border: none;
-            padding: 20px;
-            font-size: 1.1rem;
+            padding: 18px;
+            font-size: 1rem;
             font-weight: 700;
             letter-spacing: 1px;
-            border-radius: 25px;
+            border-radius: 20px;
             cursor: pointer;
             box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
             text-transform: uppercase;
@@ -280,6 +301,23 @@
 
         #emergencyBtn:active {
             transform: scale(0.98);
+        }
+
+        /* Very small screens check */
+        @media (max-height: 600px) {
+            h1 {
+                display: none;
+            }
+
+            /* Hide title on very short screens to save space */
+            .connection-area {
+                margin-bottom: 5px;
+            }
+
+            .dpad-container {
+                width: 60vmin;
+                height: 60vmin;
+            }
         }
     </style>
 </head>
@@ -298,15 +336,15 @@
     <div class="dpad-container">
         <!-- Up -->
         <div class="dpad-btn" id="btn-f" data-cmd="F">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
-                stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+                stroke-linejoin="round">
                 <path d="M18 15l-6-6-6 6" />
             </svg>
         </div>
         <!-- Left -->
         <div class="dpad-btn" id="btn-l" data-cmd="L">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
-                stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+                stroke-linejoin="round">
                 <path d="M15 18l-6-6 6-6" />
             </svg>
         </div>
@@ -316,15 +354,15 @@
         </div>
         <!-- Right -->
         <div class="dpad-btn" id="btn-r" data-cmd="R">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
-                stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+                stroke-linejoin="round">
                 <path d="M9 18l6-6-6-6" />
             </svg>
         </div>
         <!-- Down -->
         <div class="dpad-btn" id="btn-b" data-cmd="B">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
-                stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+                stroke-linejoin="round">
                 <path d="M6 9l6 6 6-6" />
             </svg>
         </div>
@@ -373,7 +411,6 @@
         // LOGGING
         function log(msg) {
             console.log(msg);
-            // consoleEl.innerText = `> ${msg}`; // Console hidden in new UI
         }
 
         function updateStatus(msg, isError = false) {
@@ -404,7 +441,6 @@
 
                 isConnected = true;
                 updateStatus("Connected");
-                // connectBtn.innerText = "Disconnect"; // Keeping button text "Connect" style often static or toggle. Let's toggle for clarity.
                 connectBtn.innerText = "Disconnect";
                 connectBtn.style.backgroundColor = "#E0E0E0";
                 log("System Link Established.");
@@ -486,7 +522,6 @@
         const stopAction = (e) => {
             e.preventDefault();
             send('S');
-            // Visual bounce handled by CSS active state
         };
         stopBtn.addEventListener('click', stopAction);
         stopBtn.addEventListener('touchstart', stopAction, { passive: false });
@@ -519,15 +554,11 @@
         // 5. Emergency Stop
         const emergencyAction = (e) => {
             e.preventDefault();
-            send('S'); // Send connection stop first
-            // potentially redundant if 'S' stops everything, but good for safety
-            // In many robot kits, usually just sending 'S' is enough. 
-            // Could also be specific emergency cmd if defined. We'll stick to 'S'.
+            send('S');
             log("EMERGENCY STOP");
         };
         emergencyBtn.addEventListener('click', emergencyAction);
         emergencyBtn.addEventListener('touchstart', emergencyAction, { passive: false });
-
 
         // DISABLE CONTEXT MENU
         window.addEventListener('contextmenu', (e) => {

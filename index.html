@@ -393,11 +393,9 @@
 
     <script>
         // CONFIGURATION
-        const SERVICE_UUID = "0000ffe0-0000-1000-8000-00805f9b34fb";
-        const CHAR_UUID = "0000ffe1-0000-1000-8000-00805f9b34fb";
+        const BAUD_RATE = 9600; // HC-05 Default
 
-        let bluetoothDevice;
-        let vehicleCharacteristic;
+        let serialPort;
         let isConnected = false;
         let isHeadlightOn = false;
 
@@ -418,42 +416,56 @@
             statusEl.style.color = isError ? "var(--accent-red)" : "#888";
         }
 
-        // BLUETOOTH CONNECTION
-        async function connectBluetooth() {
+        // SERIAL CONNECTION
+        async function connectSerial() {
+            if (!("serial" in navigator)) {
+                updateStatus("Web Serial not supported", true);
+                alert("Web Serial API not supported. Please use Chrome or Edge on Desktop/Android.");
+                return;
+            }
+
             try {
-                updateStatus("Scanning...");
-                log("Requesting Bluetooth Device...");
+                updateStatus("Select Device...");
+                log("Requesting Serial Port...");
 
-                bluetoothDevice = await navigator.bluetooth.requestDevice({
-                    filters: [{ services: [SERVICE_UUID] }]
-                });
+                // Filter for common Bluetooth Serial bridges if possible, but empty filters allow all serial devices
+                serialPort = await navigator.serial.requestPort();
 
-                bluetoothDevice.addEventListener('gattserverdisconnected', onDisconnected);
+                updateStatus("Opening Port...");
+                log("Opening Port...");
 
-                log("Connecting to GATT Server...");
-                const server = await bluetoothDevice.gatt.connect();
-
-                log("Getting Service...");
-                const service = await server.getPrimaryService(SERVICE_UUID);
-
-                log("Getting Characteristic...");
-                vehicleCharacteristic = await service.getCharacteristic(CHAR_UUID);
+                await serialPort.open({ baudRate: BAUD_RATE });
 
                 isConnected = true;
-                updateStatus("Connected");
+                updateStatus("Connected (Serial)");
                 connectBtn.innerText = "Disconnect";
                 connectBtn.style.backgroundColor = "#E0E0E0";
-                log("System Link Established.");
+                log("Serial Link Established.");
+
+                serialPort.addEventListener('disconnect', onDisconnected);
 
             } catch (error) {
                 console.error(error);
                 log("Connection Failed: " + error);
-                updateStatus("Error", true);
+                updateStatus("Error: " + error.message, true);
+                isConnected = false;
             }
+        }
+
+        async function disconnectSerial() {
+            if (serialPort) {
+                try {
+                    await serialPort.close();
+                } catch (e) {
+                    console.error("Close Error: ", e);
+                }
+            }
+            onDisconnected();
         }
 
         function onDisconnected() {
             isConnected = false;
+            serialPort = null;
             updateStatus("Disconnected");
             connectBtn.innerText = "Connect";
             connectBtn.style.backgroundColor = "var(--accent-lilac)";
@@ -462,11 +474,9 @@
 
         function toggleConnection() {
             if (isConnected) {
-                if (bluetoothDevice && bluetoothDevice.gatt.connected) {
-                    bluetoothDevice.gatt.disconnect();
-                }
+                disconnectSerial();
             } else {
-                connectBluetooth();
+                connectSerial();
             }
         }
 
@@ -475,17 +485,23 @@
         // SEND COMMAND
         let lastCmd = null;
         async function send(cmd) {
-            if (!isConnected) {
+            if (!isConnected || !serialPort || !serialPort.writable) {
                 log(`[Sim] Sending: ${cmd}`);
                 return;
             }
 
             try {
                 const encoder = new TextEncoder();
-                await vehicleCharacteristic.writeValue(encoder.encode(cmd));
+                const writer = serialPort.writable.getWriter();
+                await writer.write(encoder.encode(cmd));
+                writer.releaseLock();
                 lastCmd = cmd;
             } catch (error) {
                 log(`Send Error: ${error}`);
+                // If write fails, the port might be disconnected
+                if (error.name === 'NetworkError' || error.message.includes('closed')) {
+                    onDisconnected();
+                }
             }
         }
 

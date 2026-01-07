@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>CYBER-DRIVE // BLE</title>
+    <style>
+        :root {
+            --neon-blue: #00f3ff;
+            --neon-pink: #ff00ff;
+            --neon-red: #ff3333;
+            --neon-green: #39ff14;
+            --bg-dark: #0d0d0d;
+            --glass: rgba(255, 255, 255, 0.05);
+            --grid-color: rgba(0, 243, 255, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            font-family: 'Courier New', monospace;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-dark);
+            color: var(--neon-blue);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background-image:
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        /* HEADER */
+        .header {
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--neon-blue);
+            box-shadow: 0 0 10px var(--neon-blue);
+            background: rgba(13, 13, 13, 0.9);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            text-shadow: 0 0 5px var(--neon-blue);
+        }
+
+        #status {
+            font-size: 0.8rem;
+            color: var(--neon-pink);
+            text-transform: uppercase;
+        }
+
+        /* CONNECT BTN */
+        #connectBtn {
+            background: transparent;
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            box-shadow: 0 0 5px var(--neon-green);
+            transition: all 0.2s;
+        }
+
+        #connectBtn:active {
+            background: var(--neon-green);
+            color: var(--bg-dark);
+        }
+
+        /* CONTROLS AREA */
+        .main-controls {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* D-PAD GRID */
+        .d-pad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 10px;
+            width: 280px;
+            height: 280px;
+        }
+
+        .btn {
+            background: var(--glass);
+            border: 2px solid var(--neon-blue);
+            color: var(--neon-blue);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.1);
+            transition: all 0.1s;
+            cursor: pointer;
+        }
+
+        .btn:active,
+        .btn.active {
+            background: var(--neon-blue);
+            color: var(--bg-dark);
+            box-shadow: 0 0 20px var(--neon-blue);
+            transform: scale(0.95);
+        }
+
+        /* D-Pad Positioning */
+        #btn-f {
+            grid-column: 2;
+            grid-row: 1;
+        }
+
+        #btn-l {
+            grid-column: 1;
+            grid-row: 2;
+        }
+
+        #btn-r {
+            grid-column: 3;
+            grid-row: 2;
+        }
+
+        #btn-b {
+            grid-column: 2;
+            grid-row: 3;
+            border-color: var(--neon-pink);
+            color: var(--neon-pink);
+        }
+
+        #btn-b:active,
+        #btn-b.active {
+            background: var(--neon-pink);
+            color: var(--bg-dark);
+            box-shadow: 0 0 20px var(--neon-pink);
+        }
+
+        /* AUX COMPONENTS */
+        .aux-controls {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .toggle-btn {
+            border: 2px solid var(--neon-blue);
+            color: var(--neon-blue);
+            padding: 10px 40px;
+            font-size: 1rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.1);
+            background: var(--glass);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle-btn.active {
+            background: var(--neon-blue);
+            color: var(--bg-dark);
+            box-shadow: 0 0 25px var(--neon-blue);
+        }
+
+        /* SPEED CONTROLS */
+        .speed-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .speed-btn {
+            width: 50px;
+            height: 50px;
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            background: var(--glass);
+            font-size: 1.2rem;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .speed-btn:active,
+        .speed-btn.selected {
+            background: var(--neon-green);
+            color: var(--bg-dark);
+            box-shadow: 0 0 15px var(--neon-green);
+        }
+
+        /* LOG CONSOLE */
+        #console {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            color: #aaa;
+            font-size: 0.7rem;
+            padding: 5px;
+            height: 30px;
+            border-top: 1px solid #333;
+            display: flex;
+            align-items: center;
+            padding-left: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <div>
+            <h1>CYBER-DRIVE</h1>
+            <div id="status">DISCONNECTED</div>
+        </div>
+        <button id="connectBtn">CONNECT</button>
+    </div>
+
+    <div class="main-controls">
+        <div class="d-pad">
+            <div class="btn" id="btn-f" data-cmd="F">&#9650;</div> <!-- Up -->
+            <div class="btn" id="btn-l" data-cmd="L">&#9664;</div> <!-- Left -->
+            <div class="btn" id="btn-r" data-cmd="R">&#9654;</div> <!-- Right -->
+            <div class="btn" id="btn-b" data-cmd="B">&#9660;</div> <!-- Down -->
+        </div>
+
+        <div class="aux-controls">
+            <div class="toggle-btn" id="headlightBtn">
+                <span>&#9788;</span> HEADLIGHTS
+            </div>
+        </div>
+
+        <div class="speed-controls">
+            <div class="speed-btn" data-cmd="1">1</div>
+            <div class="speed-btn" data-cmd="2">2</div>
+            <div class="speed-btn" data-cmd="3">3</div>
+            <div class="speed-btn" data-cmd="4">4</div>
+        </div>
+    </div>
+
+    <div id="console">> SYSTEM READY...</div>
+
+    <script>
+        // CONFIGURATION
+        const SERVICE_UUID = "0000ffe0-0000-1000-8000-00805f9b34fb";
+        const CHAR_UUID = "0000ffe1-0000-1000-8000-00805f9b34fb";
+
+        let bluetoothDevice;
+        let vehicleCharacteristic;
+        let isConnected = false;
+        let isHeadlightOn = false;
+
+        // UI ELEMENTS
+        const statusEl = document.getElementById('status');
+        const connectBtn = document.getElementById('connectBtn');
+        const consoleEl = document.getElementById('console');
+        const speedBtns = document.querySelectorAll('.speed-btn');
+        const headlightBtn = document.getElementById('headlightBtn');
+
+        // LOGGING
+        function log(msg) {
+            console.log(msg);
+            consoleEl.innerText = `> ${msg}`;
+        }
+
+        function updateStatus(msg, color) {
+            statusEl.innerText = msg;
+            if (color) statusEl.style.color = color;
+        }
+
+        // BLUETOOTH CONNECTION
+        async function connectBluetooth() {
+            try {
+                updateStatus("SCANNING...", "var(--neon-blue)");
+                log("Requesting Bluetooth Device...");
+
+                bluetoothDevice = await navigator.bluetooth.requestDevice({
+                    filters: [{ services: [SERVICE_UUID] }]
+                });
+
+                bluetoothDevice.addEventListener('gattserverdisconnected', onDisconnected);
+
+                log("Connecting to GATT Server...");
+                const server = await bluetoothDevice.gatt.connect();
+
+                log("Getting Service...");
+                const service = await server.getPrimaryService(SERVICE_UUID);
+
+                log("Getting Characteristic...");
+                vehicleCharacteristic = await service.getCharacteristic(CHAR_UUID);
+
+                isConnected = true;
+                updateStatus("CONNECTED", "var(--neon-green)");
+                connectBtn.innerText = "DISCONNECT";
+                log("System Link Established.");
+
+            } catch (error) {
+                console.error(error);
+                log("Connection Failed: " + error);
+                updateStatus("ERROR", "var(--neon-red)");
+            }
+        }
+
+        function onDisconnected() {
+            isConnected = false;
+            updateStatus("DISCONNECTED", "var(--neon-pink)");
+            connectBtn.innerText = "CONNECT";
+            log("Link Lost.");
+        }
+
+        function toggleConnection() {
+            if (isConnected) {
+                if (bluetoothDevice && bluetoothDevice.gatt.connected) {
+                    bluetoothDevice.gatt.disconnect();
+                }
+            } else {
+                connectBluetooth();
+            }
+        }
+
+        connectBtn.addEventListener('click', toggleConnection);
+
+        // SEND COMMAND
+        let lastCmd = null;
+        async function send(cmd) {
+            if (!isConnected) {
+                log(`[Sim] Sending: ${cmd}`);
+                return;
+            }
+
+            // Prevent spamming same command (optional, but good for some modules)
+            // if (cmd === lastCmd && cmd !== 'S') return; 
+
+            try {
+                const encoder = new TextEncoder();
+                await vehicleCharacteristic.writeValue(encoder.encode(cmd));
+                lastCmd = cmd;
+                // log(`Sent: ${cmd}`); // Too noisy for repeated press
+            } catch (error) {
+                log(`Send Error: ${error}`);
+            }
+        }
+
+        // CONTROL HANDLERS (TOUCH & MOUSE)
+        const dpadBtns = ['btn-f', 'btn-b', 'btn-l', 'btn-r'];
+
+        dpadBtns.forEach(id => {
+            const btn = document.getElementById(id);
+            const cmd = btn.getAttribute('data-cmd');
+
+            const startAction = (e) => {
+                e.preventDefault(); // Prevent scrolling/selection
+                btn.classList.add('active');
+                send(cmd);
+                log(`Transmitting: ${cmd}`);
+            };
+
+            const endAction = (e) => {
+                e.preventDefault();
+                btn.classList.remove('active');
+                send('S'); // Stop on release
+                log(`Transmitting: STOP`);
+            };
+
+            // Touch
+            btn.addEventListener('touchstart', startAction, { passive: false });
+            btn.addEventListener('touchend', endAction, { passive: false });
+
+            // Mouse
+            btn.addEventListener('mousedown', startAction);
+            btn.addEventListener('mouseup', endAction);
+            btn.addEventListener('mouseleave', endAction); // Safety if cursor leaves btn
+        });
+
+        // SPEED HANDLERS
+        speedBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                // Visual selection
+                speedBtns.forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+
+                const cmd = btn.getAttribute('data-cmd');
+                send(cmd);
+                log(`Speed Set: ${cmd}`);
+            });
+        });
+
+        // HEADLIGHT HANDLER
+        headlightBtn.addEventListener('click', () => {
+            // Toggle State
+            isHeadlightOn = !isHeadlightOn;
+
+            // Update UI
+            if (isHeadlightOn) {
+                headlightBtn.classList.add('active');
+                send('O'); // Arduino: 'O' = ON
+                log("Headlights: ON");
+            } else {
+                headlightBtn.classList.remove('active');
+                send('s'); // Arduino: 's' = OFF
+                log("Headlights: OFF");
+            }
+        });
+
+        // DISABLE CONTEXT MENU (App-like feel)
+        window.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+
+    </script>
+</body>
+
+</html>

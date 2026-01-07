@@ -440,7 +440,7 @@
                 log("Requesting Bluetooth Device...");
 
                 bluetoothDevice = await navigator.bluetooth.requestDevice({
-                    acceptAllDevices: true,
+                    filters: [{ name: 'HC-05' }],
                     optionalServices: [SERVICE_UUID]
                 });
 
